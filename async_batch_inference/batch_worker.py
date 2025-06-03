@@ -16,9 +16,9 @@ class BatchWorker:
         self.worker_class = worker_class
         self.mp = mp.get_context('spawn')
         self.result_cache = Cache(maxsize=100_000, ttl=600)
-        self.send_queue = self.mp.Queue(batch_size)
-        self.rev_queue = self.mp.Queue(batch_size)
-        self.all_queue = asyncio.Queue(batch_size)
+        self.send_queue = self.mp.Queue(batch_size*2)
+        self.rev_queue = self.mp.Queue(batch_size*2)
+        self.all_queue = asyncio.Queue(batch_size*2)
         self.kwargs = kwargs
         self.is_start = False
 

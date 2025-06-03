@@ -13,7 +13,6 @@ class Batcher(Generic[X, Y]):
         self.send_queue = send_queue
         self.rev_queue = rev_queue
         self.worker_ready_event = worker_ready_event
-        self.batch_size = batch_size
         self.kwargs = kwargs
         self.max_size = batch_size
         self.load_model(**kwargs)
