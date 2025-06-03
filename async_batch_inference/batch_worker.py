@@ -22,7 +22,7 @@ class BatchWorker:
         self.kwargs = kwargs
         self.is_start = False
 
-    async def predict(self, item: str, timeout=2):
+    async def predict(self, item: str, timeout=2.0):
         return await asyncio.wait_for(self._write_(item), timeout=timeout)
 
     async def _write_(self, item: str):
