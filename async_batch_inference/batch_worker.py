@@ -2,7 +2,7 @@ import asyncio
 import multiprocessing as mp
 import uuid
 from typing import TypeVar, Type
-from batch_inference.batcher import Batcher
+from async_batch_inference.batcher import Batcher
 from cacheout import Cache
 
 A = TypeVar('A', bound=Batcher)

@@ -3,8 +3,8 @@ from contextlib import asynccontextmanager
 import uvicorn
 from fastapi import FastAPI
 
-from batch_inference.batch_worker import BatchWorker
-from batch_inference.batcher import Batcher
+from async_batch_inference.batch_worker import BatchWorker
+from async_batch_inference.batcher import Batcher
 
 
 class MyWorker(Batcher[str,str]):
