@@ -12,10 +12,10 @@ class MyWorker(Batcher[str]):
 
 
     def load_model(self, **kwargs):
-        pass
+        print(kwargs)
 
     def predict_batch(self, x: list[str]):
-        pass
+        return x
 
 wrapped_model = BatchWorker(MyWorker, batch_size=16, max_delay=0.05)
 
