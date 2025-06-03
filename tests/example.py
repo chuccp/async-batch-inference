@@ -13,7 +13,7 @@ class MyWorker(Batcher[str,str]):
         print(kwargs)
 
     def predict_batch(self, x: list[str])->list[str]:
-        return x
+        return ["text:" + str(i) for i in x]
 
 wrapped_model = BatchWorker(MyWorker, batch_size=16, max_delay=0.05)
 
