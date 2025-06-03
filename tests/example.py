@@ -25,8 +25,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-@app.get('/batch_predict')
-async def batch_predict(text: str):
+@app.get('/predict')
+async def predict(text: str):
     text = await wrapped_model.predict(text)
     return {"message": text}
 
