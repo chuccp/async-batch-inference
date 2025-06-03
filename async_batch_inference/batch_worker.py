@@ -20,6 +20,7 @@ class BatchWorker:
         self.rev_queue = self.mp.Queue(batch_size)
         self.all_queue = asyncio.Queue(batch_size)
         self.kwargs = kwargs
+        self.is_start = False
 
     async def predict(self, item: str, timeout=2):
         return await asyncio.wait_for(self._write_(item), timeout=timeout)
@@ -52,6 +53,9 @@ class BatchWorker:
             await asyncio.sleep(week_time)
 
     async def start(self):
+        if self.is_start:
+            return
+        self.is_start = True
         worker_ready_event = self.mp.Event()
         worker_p: mp.context.SpawnProcess = self.mp.Process(target=self.worker_class.start,
                                                             args=(self.send_queue, self.rev_queue, worker_ready_event,
