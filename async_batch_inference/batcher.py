@@ -16,6 +16,7 @@ class Batcher(Generic[X, Y]):
         self.batch_size = batch_size
         self.kwargs = kwargs
         self.max_size = batch_size
+        self.load_model(**kwargs)
 
     def load_model(self, **kwargs):
         """

@@ -15,7 +15,7 @@ class MyWorker(Batcher[str,str]):
     def predict_batch(self, x: list[str])->list[str]:
         return ["text:" + str(i) for i in x]
 
-wrapped_model = BatchWorker(MyWorker, batch_size=16, max_delay=0.05)
+wrapped_model = BatchWorker(MyWorker, batch_size=16,  model_path = 'model_path')
 
 
 @asynccontextmanager
