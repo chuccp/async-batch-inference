@@ -3,10 +3,11 @@ import traceback
 from typing import TypeVar, Generic
 
 log = logging.getLogger(__name__)
-T = TypeVar('T')
+X = TypeVar('X')
+Y = TypeVar('Y')
 
 
-class Batcher(Generic[T]):
+class Batcher(Generic[X, Y]):
 
     def __init__(self, send_queue, rev_queue, worker_ready_event, batch_size, kwargs):
         self.send_queue = send_queue
@@ -17,9 +18,19 @@ class Batcher(Generic[T]):
         self.max_size = batch_size
 
     def load_model(self, **kwargs):
+        """
+        加载模型
+        :param kwargs:
+        :return:
+        """
         raise NotImplementedError()
 
-    def predict_batch(self, x: list[T]):
+    def predict_batch(self, x: list[X])->list[Y]:
+        """
+        批量预测
+        :param x:
+        :return:
+        """
         raise NotImplementedError()
 
     def _run_task(self):

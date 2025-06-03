@@ -10,7 +10,7 @@ week_time = 0.0005
 
 
 class BatchWorker:
-    def __init__(self, worker_class: Type[A], batch_size: int = 16, max_delay: float = 0.1, **kwargs):
+    def __init__(self, worker_class: Type[A], batch_size: int = 16, **kwargs):
         self.batch_size = batch_size
         self.batch = []
         self.worker_class = worker_class
@@ -21,7 +21,10 @@ class BatchWorker:
         self.all_queue = asyncio.Queue(batch_size)
         self.kwargs = kwargs
 
-    async def __call__(self, item: str):
+    async def predict(self, item: str, timeout=2):
+        return await asyncio.wait_for(self._write_(item), timeout=timeout)
+
+    async def _write_(self, item: str):
         queue = asyncio.Queue(1)
         await self.all_queue.put((item, queue))
         value = await queue.get()
