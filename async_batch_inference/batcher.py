@@ -48,7 +48,7 @@ class Batcher(Generic[X, Y]):
                                 self.rev_queue.put((item1, item2[1]))
                         except Exception as e:
                             stack_trace = traceback.format_exc()
-                            log.error(f"_run_task========2 error {stack_trace}")
+                            log.error(f"_run_task error {stack_trace}")
                             for item2 in input_list:
                                 self.rev_queue.put(({"error": e.__str__()}, item2[1]))
                         break
