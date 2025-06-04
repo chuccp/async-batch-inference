@@ -2,7 +2,6 @@ import logging
 import traceback
 from typing import TypeVar, Generic
 
-log = logging.getLogger(__name__)
 X = TypeVar('X')
 Y = TypeVar('Y')
 
@@ -48,13 +47,12 @@ class Batcher(Generic[X, Y]):
                                 self.rev_queue.put((item1, item2[1]))
                         except Exception as e:
                             stack_trace = traceback.format_exc()
-                            log.error(f"_run_task error {stack_trace}")
                             for item2 in input_list:
-                                self.rev_queue.put(({"error": e.__str__()}, item2[1]))
+                                self.rev_queue.put(({"error": stack_trace}, item2[1]))
                         break
             except Exception as e:
                 stack_trace = traceback.format_exc()
-                log.error(f"_run_task========1 e {e} error {stack_trace}")
+                print(stack_trace)
 
     def _run(self):
         self._run_task()

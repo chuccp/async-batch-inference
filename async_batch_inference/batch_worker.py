@@ -16,14 +16,17 @@ class BatchWorker:
         self.worker_class = worker_class
         self.mp = mp.get_context('spawn')
         self.result_cache = Cache(maxsize=100_000, ttl=600)
-        self.send_queue = self.mp.Queue(batch_size*2)
-        self.rev_queue = self.mp.Queue(batch_size*2)
-        self.all_queue = asyncio.Queue(batch_size*2)
+        self.send_queue = self.mp.Queue(batch_size * 2)
+        self.rev_queue = self.mp.Queue(batch_size * 2)
+        self.all_queue = asyncio.Queue(batch_size * 2)
         self.kwargs = kwargs
         self.is_start = False
 
     async def predict(self, item: str, timeout=2.0):
-        return await asyncio.wait_for(self._write_(item), timeout=timeout)
+        value = await asyncio.wait_for(self._write_(item), timeout=timeout)
+        if isinstance(value, dict) and "error" in value:
+            raise value.get("error")
+        return value
 
     async def _write_(self, item: str):
         queue = asyncio.Queue(1)
