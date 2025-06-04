@@ -1,9 +1,11 @@
 import asyncio
+import logging
 import multiprocessing as mp
 import uuid
 from typing import TypeVar, Type
 from async_batch_inference.batcher import Batcher
 from cacheout import Cache
+log = logging.getLogger(__name__)
 
 A = TypeVar('A', bound=Batcher)
 week_time = 0.0005
@@ -66,6 +68,6 @@ class BatchWorker:
                                                                   ), daemon=True)
         worker_p.start()
         is_ready = worker_ready_event.wait(timeout=30)
-        print(f"==BatchWorker==start===={is_ready}=========== pid: {worker_p.pid} ")
+        log.info(f"==BatchWorker==start===={is_ready}=========== pid: {worker_p.pid} ")
         asyncio.create_task(self._check_send_value())
         asyncio.create_task(self._check_rev_value())
