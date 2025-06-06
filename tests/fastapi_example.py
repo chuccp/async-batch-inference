@@ -10,6 +10,11 @@ from async_batch_inference.batcher import Batcher
 class MyWorker(Batcher[str,str]):
 
     def load_model(self, **kwargs):
+        """
+        加载模型
+        :param kwargs:
+        :return:
+        """
         print(kwargs)
 
     def predict_batch(self, x: list[str])->list[str]:

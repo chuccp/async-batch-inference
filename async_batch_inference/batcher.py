@@ -21,7 +21,7 @@ class Batcher(Generic[X, Y]):
         :param kwargs:
         :return:
         """
-        raise NotImplementedError()
+        pass
 
     def predict_batch(self, x: list[X])->list[Y]:
         """
