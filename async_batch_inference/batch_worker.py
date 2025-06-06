@@ -5,6 +5,7 @@ import uuid
 from typing import TypeVar, Type
 from async_batch_inference.batcher import Batcher
 from cacheout import Cache
+
 log = logging.getLogger(__name__)
 
 A = TypeVar('A', bound=Batcher)
@@ -13,10 +14,12 @@ WAIT_TIME = 0.0005
 
 class BatchWorker:
     def __init__(self, worker_class: Type[A], batch_size: int = 16, **kwargs):
+
         self.batch_size = batch_size
         self.batch = []
         self.worker_class = worker_class
         self.mp = mp.get_context('spawn')
+        self.worker_ready_event = self.mp.Event()
         self.result_cache = Cache(maxsize=100_000, ttl=600)
         self.send_queue = self.mp.Queue(batch_size * 2)
         self.rev_queue = self.mp.Queue(batch_size * 2)
@@ -63,13 +66,13 @@ class BatchWorker:
             return
         self.is_start = True
         self._stop_event.set()
-        worker_ready_event = self.mp.Event()
         worker_p: mp.context.SpawnProcess = self.mp.Process(target=self.worker_class.start,
-                                                            args=(self.send_queue, self.rev_queue, worker_ready_event,
+                                                            args=(self.send_queue, self.rev_queue,
+                                                                  self.worker_ready_event,
                                                                   self.batch_size, self.kwargs
                                                                   ), daemon=True)
         worker_p.start()
-        is_ready = worker_ready_event.wait(timeout=30)
+        is_ready = self.worker_ready_event.wait(timeout=30)
         log.info(f"==BatchWorker==start===={is_ready}=========== pid: {worker_p.pid} ")
         asyncio.create_task(self._check_send_value())
         asyncio.create_task(self._check_rev_value())
@@ -79,4 +82,5 @@ class BatchWorker:
             return
         self.is_start = False
         self._stop_event.clear()
-        log.info(f"==BatchWorker==stop===={self.is_start}=========== ")
+        if self.worker_ready_event.is_set():
+            self.worker_ready_event.clear()
