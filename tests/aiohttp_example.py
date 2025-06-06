@@ -1,8 +1,4 @@
-import asyncio
-
-import aiohttp
 from aiohttp import web
-
 from async_batch_inference.batch_worker import BatchWorker
 from async_batch_inference.batcher import Batcher
 

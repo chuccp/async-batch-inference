@@ -31,4 +31,4 @@ async def predict(text: str):
     return {"message": text}
 
 if __name__ == '__main__':
-    uvicorn.run("example:app", workers=1, host="0.0.0.0", port=1254, reload=False)
+    uvicorn.run("fastapi_example:app", workers=1, host="0.0.0.0", port=1254, reload=False)
