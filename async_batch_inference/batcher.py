@@ -36,13 +36,12 @@ class Batcher(Generic[X, Y]):
         raise NotImplementedError()
 
     def _predict(self, batch_data: list[tuple[X, str]]) -> list[tuple[Y, str]]:
-        input_list = [(v[0], v[1]) for v in batch_data]
         try:
-            v_list = self.predict_batch([v[0] for v in input_list])
-            return [(v, v1[1]) for v, v1 in zip(v_list, input_list)]
+            v_list = self.predict_batch([v[0] for v in batch_data])
+            return [(v, v1[1]) for v, v1 in zip(v_list, batch_data)]
         except Exception as e:
             stack_trace = traceback.format_exc()
-            return [({"error": stack_trace}, v1[1]) for v1 in input_list]
+            return [({"error": stack_trace}, v1[1]) for v1 in batch_data]
 
     def _run_task(self):
         while self.worker_ready_event.is_set():
