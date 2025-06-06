@@ -82,5 +82,4 @@ class BatchWorker:
             return
         self.is_start = False
         self._stop_event.clear()
-        if self.worker_ready_event.is_set():
-            self.worker_ready_event.clear()
+        self.worker_ready_event.clear()
