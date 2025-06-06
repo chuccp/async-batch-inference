@@ -21,6 +21,7 @@ class BatchWorker:
         self.send_queue = self.mp.Queue(batch_size * 2)
         self.rev_queue = self.mp.Queue(batch_size * 2)
         self.all_queue = asyncio.Queue(batch_size * 2)
+        self._stop_event = asyncio.Event()
         self.kwargs = kwargs
         self.is_start = False
 
@@ -37,7 +38,7 @@ class BatchWorker:
         return value
 
     async def _check_send_value(self):
-        while True:
+        while self._stop_event.is_set():
             item, queue = await self.all_queue.get()
             task_id = str(uuid.uuid4())
             self.result_cache.set(task_id, queue)
@@ -49,7 +50,7 @@ class BatchWorker:
                 break
 
     async def _check_rev_value(self):
-        while True:
+        while self._stop_event.is_set():
             while not self.rev_queue.empty():
                 item, task_id = self.rev_queue.get_nowait()
                 queue: asyncio.Queue = self.result_cache.get(task_id)
@@ -61,6 +62,7 @@ class BatchWorker:
         if self.is_start:
             return
         self.is_start = True
+        self._stop_event.set()
         worker_ready_event = self.mp.Event()
         worker_p: mp.context.SpawnProcess = self.mp.Process(target=self.worker_class.start,
                                                             args=(self.send_queue, self.rev_queue, worker_ready_event,
