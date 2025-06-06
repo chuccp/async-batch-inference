@@ -1,5 +1,8 @@
+import multiprocessing as mp
+import queue
+import time
 import traceback
-from typing import TypeVar, Generic
+from typing import TypeVar, Generic, Any
 
 X = TypeVar('X')
 Y = TypeVar('Y')
@@ -7,7 +10,8 @@ Y = TypeVar('Y')
 
 class Batcher(Generic[X, Y]):
 
-    def __init__(self, send_queue, rev_queue, worker_ready_event, batch_size, kwargs):
+    def __init__(self, send_queue: mp.Queue, rev_queue: mp.Queue, worker_ready_event,
+                 batch_size, kwargs):
         self.send_queue = send_queue
         self.rev_queue = rev_queue
         self.worker_ready_event = worker_ready_event
@@ -23,7 +27,7 @@ class Batcher(Generic[X, Y]):
         """
         pass
 
-    def predict_batch(self, x: list[X])->list[Y]:
+    def predict_batch(self, x: list[X]) -> list[Y]:
         """
         批量预测
         :param x:
@@ -31,24 +35,36 @@ class Batcher(Generic[X, Y]):
         """
         raise NotImplementedError()
 
-    def _run_task(self):
-        while True:
-                value_list: list[str] = []
-                while True:
-                    value = self.send_queue.get()
-                    value_list.append(value)
-                    if self.send_queue.empty() or len(value_list) >= self.max_size:
-                        input_list = [(v[0], v[1]) for v in value_list]
-                        try:
-                            v_list = self.predict_batch([v[0] for v in input_list])
-                            for item1, item2 in zip(v_list, input_list):
-                                self.rev_queue.put((item1, item2[1]))
-                        except Exception as e:
-                            stack_trace = traceback.format_exc()
-                            for item2 in input_list:
-                                self.rev_queue.put(({"error": stack_trace}, item2[1]))
-                        break
+    def _predict(self, batch_data: list[tuple[X, str]]) -> list[tuple[Y, str]]:
+        input_list = [(v[0], v[1]) for v in batch_data]
+        try:
+            v_list = self.predict_batch([v[0] for v in input_list])
+            return [(v, v1[1]) for v, v1 in zip(v_list, input_list)]
+        except Exception as e:
+            stack_trace = traceback.format_exc()
+            return [({"error": stack_trace}, v1[1]) for v1 in input_list]
 
+    def _run_task(self):
+        while self.worker_ready_event.is_set():
+            batch_data: list[tuple[X, str]] = []
+            try:
+                first_value = self.send_queue.get(timeout=1)
+                batch_data.append(first_value)
+                while len(batch_data) < self.max_size:
+                    try:
+                        next_value = self.send_queue.get_nowait()
+                        batch_data.append(next_value)
+                    except queue.Empty:
+                        break
+            except queue.Empty:
+                pass
+            except Exception as e:
+                time.sleep(0.1)
+
+            if len(batch_data) > 0:
+                output_list = self._predict(batch_data)
+                for item in output_list:
+                    self.rev_queue.put(item)
 
     def _run(self):
         self._run_task()
