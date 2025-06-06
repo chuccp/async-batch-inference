@@ -33,7 +33,6 @@ class Batcher(Generic[X, Y]):
 
     def _run_task(self):
         while True:
-            try:
                 value_list: list[str] = []
                 while True:
                     value = self.send_queue.get()
@@ -49,9 +48,7 @@ class Batcher(Generic[X, Y]):
                             for item2 in input_list:
                                 self.rev_queue.put(({"error": stack_trace}, item2[1]))
                         break
-            except Exception as e:
-                stack_trace = traceback.format_exc()
-                print(stack_trace)
+
 
     def _run(self):
         self._run_task()
