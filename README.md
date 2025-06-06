@@ -37,7 +37,7 @@ class MyWorker(Batcher[str,str]):
         :param kwargs:
         :return:
         """
-        print(kwargs)
+        print(kwargs.get("model_path"))
 
     def predict_batch(self, x: list[str])->list[str]:
         return ["text:" + str(i) for i in x]
@@ -78,7 +78,7 @@ class MyWorker(Batcher[str,str]):
         :param kwargs:
         :return:
         """
-        print(kwargs)
+        print(kwargs.get("model_path"))
 
     def predict_batch(self, x: list[str])->list[str]:
         return ["text:" + str(i) for i in x]
