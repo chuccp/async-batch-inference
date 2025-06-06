@@ -1,8 +1,6 @@
 from contextlib import asynccontextmanager
-
 import uvicorn
 from fastapi import FastAPI
-
 from async_batch_inference.batch_worker import BatchWorker
 from async_batch_inference.batcher import Batcher
 
