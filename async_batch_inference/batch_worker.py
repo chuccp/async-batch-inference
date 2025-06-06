@@ -8,7 +8,7 @@ from cacheout import Cache
 log = logging.getLogger(__name__)
 
 A = TypeVar('A', bound=Batcher)
-wait_time = 0.0005
+WAIT_TIME = 0.0005
 
 
 class BatchWorker:
@@ -44,7 +44,7 @@ class BatchWorker:
             self.result_cache.set(task_id, queue)
             while True:
                 if self.send_queue.full():
-                    await asyncio.sleep(wait_time)
+                    await asyncio.sleep(WAIT_TIME)
                     continue
                 self.send_queue.put_nowait((item, task_id))
                 break
@@ -56,7 +56,7 @@ class BatchWorker:
                 queue: asyncio.Queue = self.result_cache.get(task_id)
                 self.result_cache.delete(task_id)
                 queue.put_nowait(item)
-            await asyncio.sleep(wait_time)
+            await asyncio.sleep(WAIT_TIME)
 
     async def start(self):
         if self.is_start:
@@ -73,3 +73,10 @@ class BatchWorker:
         log.info(f"==BatchWorker==start===={is_ready}=========== pid: {worker_p.pid} ")
         asyncio.create_task(self._check_send_value())
         asyncio.create_task(self._check_rev_value())
+
+    async def stop(self):
+        if not self.is_start:
+            return
+        self.is_start = False
+        self._stop_event.clear()
+        log.info(f"==BatchWorker==stop===={self.is_start}=========== ")
