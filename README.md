@@ -8,7 +8,7 @@
 ## 安装步骤
 ### 克隆仓库
 ```bash
-  git clone https://github.com/your-repo/async-batch-inference.git
+  git clone https://github.com/chuccp/async-batch-inference
   cd async-batch-inference
 ```
 
