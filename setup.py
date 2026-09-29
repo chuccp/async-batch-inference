@@ -6,5 +6,5 @@ setup(name='async-batch-inference',
       description='A Python library that enables asynchronous batch inference, enhancing efficiency by processing multiple requests concurrently.',
       author='coke',
       author_email='cooge123@gmail.com',
-      packages=['async-batch-inference'],
+      packages=['async_batch_inference'],
      )
